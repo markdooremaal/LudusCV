@@ -11,7 +11,7 @@ if not cap.isOpened():
 # We convert the resolutions from float to integer.
 frame_width = int(cap.get(3))
 frame_height = int(cap.get(4))
- 
+
 # Define the codec and create VideoWriter object.The output is stored in 'outpy.avi' file.
 out = cv2.VideoWriter('outpy.avi',cv2.VideoWriter_fourcc('M','J','P','G'), 10, (frame_width,frame_height))
  
