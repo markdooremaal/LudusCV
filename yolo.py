@@ -77,7 +77,8 @@ def format_yolov5(frame):
 # START!
 colors = [(255, 255, 0), (0, 255, 0), (0, 255, 255), (255, 0, 0)]
 net = build_model()
-capture = cv2.VideoCapture(0)
+#capture = cv2.VideoCapture(0)
+capture = cv2.VideoCapture("example_data/Paddle.mp4")
 
 while True:
     _, frame = capture.read()
