@@ -1,26 +1,25 @@
 import cv2
-import time
 import numpy as np
 
 INPUT_WIDTH = 640
 INPUT_HEIGHT = 640
 class_list = ['Paddle']
 
-
+# Will load the model into OpenCV DNN
 def build_model():
     net = cv2.dnn.readNet("models/16052022.onnx")
     net.setPreferableBackend(cv2.dnn.DNN_BACKEND_OPENCV)
     net.setPreferableTarget(cv2.dnn.DNN_TARGET_CPU)
     return net
 
-
+# Will run the predictions
 def detect(image, net):
     blob = cv2.dnn.blobFromImage(image, 1 / 255.0, (INPUT_WIDTH, INPUT_HEIGHT), swapRB=True, crop=False)
     net.setInput(blob)
     preds = net.forward()
     return preds
 
-
+# Will surround the detected objects
 def wrap_detection(input_image, output_data):
     class_ids = []
     confidences = []
@@ -67,7 +66,7 @@ def wrap_detection(input_image, output_data):
 
     return result_class_ids, result_confidences, result_boxes
 
-
+# Will convert a frame into an array that yolo has been trained on.
 def format_yolov5(frame):
     row, col, _ = frame.shape
     _max = max(col, row)
@@ -75,19 +74,12 @@ def format_yolov5(frame):
     result[0:row, 0:col] = frame
     return result
 
-
+# START!
 colors = [(255, 255, 0), (0, 255, 0), (0, 255, 255), (255, 0, 0)]
-
 net = build_model()
 capture = cv2.VideoCapture(0)
 
-start = time.time_ns()
-frame_count = 0
-total_frames = 0
-fps = -1
-
 while True:
-
     _, frame = capture.read()
 
     inputImage = format_yolov5(frame)
@@ -95,29 +87,14 @@ while True:
 
     class_ids, confidences, boxes = wrap_detection(inputImage, outs[0])
 
-    frame_count += 1
-    total_frames += 1
-
     for (classid, confidence, box) in zip(class_ids, confidences, boxes):
         color = colors[int(classid) % len(colors)]
         cv2.rectangle(frame, box, color, 2)
         cv2.rectangle(frame, (box[0], box[1] - 20), (box[0] + box[2], box[1]), color, -1)
         cv2.putText(frame, class_list[classid], (box[0], box[1] - 10), cv2.FONT_HERSHEY_SIMPLEX, .5, (0, 0, 0))
 
-    if frame_count >= 30:
-        end = time.time_ns()
-        fps = 1000000000 * frame_count / (end - start)
-        frame_count = 0
-        start = time.time_ns()
-
-    if fps > 0:
-        fps_label = "FPS: %.2f" % fps
-        cv2.putText(frame, fps_label, (10, 25), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
-
     cv2.imshow("output", frame)
 
     if cv2.waitKey(1) > -1:
         print("finished by user")
         break
-
-print("Total frames: " + str(total_frames))
