@@ -6,6 +6,8 @@ INPUT_HEIGHT = 640
 class_list = ['Paddle']
 
 # Will load the model into OpenCV DNN
+
+
 def build_model():
     net = cv2.dnn.readNet("models/16052022.onnx")
     net.setPreferableBackend(cv2.dnn.DNN_BACKEND_OPENCV)
@@ -13,13 +15,18 @@ def build_model():
     return net
 
 # Will run the predictions
+
+
 def detect(image, net):
-    blob = cv2.dnn.blobFromImage(image, 1 / 255.0, (INPUT_WIDTH, INPUT_HEIGHT), swapRB=True, crop=False)
+    blob = cv2.dnn.blobFromImage(
+        image, 1 / 255.0, (INPUT_WIDTH, INPUT_HEIGHT), swapRB=True, crop=False)
     net.setInput(blob)
     preds = net.forward()
     return preds
 
 # Will surround the detected objects
+
+
 def wrap_detection(input_image, output_data):
     class_ids = []
     confidences = []
@@ -45,7 +52,8 @@ def wrap_detection(input_image, output_data):
 
                 class_ids.append(class_id)
 
-                x, y, w, h = row[0].item(), row[1].item(), row[2].item(), row[3].item()
+                x, y, w, h = row[0].item(), row[1].item(
+                ), row[2].item(), row[3].item()
                 left = int((x - 0.5 * w) * x_factor)
                 top = int((y - 0.5 * h) * y_factor)
                 width = int(w * x_factor)
@@ -67,6 +75,8 @@ def wrap_detection(input_image, output_data):
     return result_class_ids, result_confidences, result_boxes
 
 # Will convert a frame into an array that yolo has been trained on.
+
+
 def format_yolov5(frame):
     row, col, _ = frame.shape
     _max = max(col, row)
@@ -74,11 +84,12 @@ def format_yolov5(frame):
     result[0:row, 0:col] = frame
     return result
 
+
 # START!
 colors = [(255, 255, 0), (0, 255, 0), (0, 255, 255), (255, 0, 0)]
 net = build_model()
-#capture = cv2.VideoCapture(0)
-capture = cv2.VideoCapture("example_data/Paddle.mp4")
+capture = cv2.VideoCapture(0)
+# capture = cv2.VideoCapture("example_data/test.mov")
 
 while True:
     _, frame = capture.read()
@@ -91,8 +102,10 @@ while True:
     for (classid, confidence, box) in zip(class_ids, confidences, boxes):
         color = colors[int(classid) % len(colors)]
         cv2.rectangle(frame, box, color, 2)
-        cv2.rectangle(frame, (box[0], box[1] - 20), (box[0] + box[2], box[1]), color, -1)
-        cv2.putText(frame, class_list[classid], (box[0], box[1] - 10), cv2.FONT_HERSHEY_SIMPLEX, .5, (0, 0, 0))
+        cv2.rectangle(frame, (box[0], box[1] - 20),
+                      (box[0] + box[2], box[1]), color, -1)
+        cv2.putText(frame, class_list[classid], (box[0],
+                    box[1] - 10), cv2.FONT_HERSHEY_SIMPLEX, .5, (0, 0, 0))
 
     cv2.imshow("output", frame)
 
