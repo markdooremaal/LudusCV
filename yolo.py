@@ -104,7 +104,7 @@ while True:
         cv2.rectangle(frame, box, color, 2)
         cv2.rectangle(frame, (box[0], box[1] - 20),
                       (box[0] + box[2], box[1]), color, -1)
-        cv2.putText(frame, class_list[classid], (box[0],
+        cv2.putText(frame, "{0} - {1:.2f}".format(class_list[classid], confidences[int(confidence)]), (box[0],
                     box[1] - 10), cv2.FONT_HERSHEY_SIMPLEX, .5, (0, 0, 0))
 
     cv2.imshow("output", frame)
