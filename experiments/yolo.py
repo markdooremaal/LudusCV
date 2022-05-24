@@ -1,15 +1,15 @@
 import cv2
 import numpy as np
 
-INPUT_WIDTH = 640
-INPUT_HEIGHT = 640
-class_list = ['Paddle']
+INPUT_WIDTH = 416
+INPUT_HEIGHT = 416
+class_list = ['Ludus-Paddle', 'Ludus-Paddle-Lights']
 
 # Will load the model into OpenCV DNN
 
 
 def build_model():
-    net = cv2.dnn.readNet("models/16052022.onnx")
+    net = cv2.dnn.readNet("../models/24052022.onnx")
     net.setPreferableBackend(cv2.dnn.DNN_BACKEND_OPENCV)
     net.setPreferableTarget(cv2.dnn.DNN_TARGET_CPU)
     return net
