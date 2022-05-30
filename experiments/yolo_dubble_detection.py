@@ -1,5 +1,6 @@
 import cv2
 import numpy as np
+from cvzone.PoseModule import PoseDetector
 
 INPUT_WIDTH = 416
 INPUT_HEIGHT = 416
@@ -85,10 +86,14 @@ colors = [(255, 255, 0), (0, 255, 0), (0, 255, 255), (255, 0, 0)]
 net = build_model()
 capture = cv2.VideoCapture(0)
 # capture = cv2.VideoCapture("example_data/lampjetest.mp4")
+detector = PoseDetector()
 
 while True:
     _, frame = capture.read()
     output = np.copy(frame)
+
+    output = detector.findPose(output)
+    lmList, bboxInfo = detector.findPosition(output, bboxWithHands=False)
 
     inputImage = format_yolov5(frame)
     outs = detect(inputImage, net)
@@ -122,6 +127,10 @@ while True:
             if extract.size != 0:
                 extractOutput = cv2.resize(extract, dsize=(500, 500))
                 cv2.imshow("extract", extractOutput)
+
+    if bboxInfo:
+        center = bboxInfo["center"]
+        cv2.circle(output, center, 5, (255, 0, 255), cv2.FILLED)
 
     cv2.imshow("output", output)
 
