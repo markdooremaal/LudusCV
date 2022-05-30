@@ -3,7 +3,7 @@ import numpy as np
 
 INPUT_WIDTH = 416
 INPUT_HEIGHT = 416
-class_list = ['Ludus-Paddle', 'Ludus-Paddle-Lights']
+class_list = ['Paddle', 'Lights']
 
 # Will load the model into OpenCV DNN
 
@@ -89,7 +89,7 @@ def format_yolov5(frame):
 colors = [(255, 255, 0), (0, 255, 0), (0, 255, 255), (255, 0, 0)]
 net = build_model()
 capture = cv2.VideoCapture(0)
-# capture = cv2.VideoCapture("example_data/test.mov")
+# capture = cv2.VideoCapture("example_data/lampjetest.mp4")
 
 while True:
     _, frame = capture.read()
@@ -106,6 +106,37 @@ while True:
                       (box[0] + box[2], box[1]), color, -1)
         cv2.putText(frame, "{0} - {1:.2f}".format(class_list[classid], confidences[int(confidence)]), (box[0],
                     box[1] - 10), cv2.FONT_HERSHEY_SIMPLEX, .5, (0, 0, 0))
+
+    for (classid, confidence, box) in zip(class_ids, confidences, boxes):
+        (x, y, w, h) = box
+        extract = frame[y:y + h, x:x + w]
+
+        hsv_extract = cv2.cvtColor(extract, cv2.COLOR_BGR2HSV)
+
+        min_hsv = np.array([65, 30, 211])
+        max_hsv = np.array([85, 255, 255])
+
+        mask = cv2.inRange(hsv_extract, min_hsv, max_hsv)
+        kernel = np.ones((5,5),np.uint8)
+        mask = cv2.erode(mask, kernel, iterations=1)
+        mask = cv2.dilate(mask, kernel, iterations=2)
+
+        contours, hierarchy = cv2.findContours(mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+
+        cv2.drawContours(extract, contours, -1, (255, 0, 0), 10)
+
+        if len(contours) > 0:
+            c = max(contours, key=cv2.contourArea)
+            x2, y2, w2, h2 = cv2.boundingRect(c)
+
+            # Plaats dit rechthoek op de video
+            cv2.rectangle(extract, (x2, y2), (x2 + w2, y2 + h2), (255, 0, 0), 10)
+
+            # print("JAA het lampje is gezien!")
+
+            # frame[y:y + h, x:x + w] = extract
+
+            cv2.imshow("extract", extract)
 
     cv2.imshow("output", frame)
 
