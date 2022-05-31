@@ -1,7 +1,7 @@
 import cv2
 import numpy as np
 
-class NeuralNetwork:
+class YoloV5:
     def __init__(self, path_to_onnx, class_list=None, sizes = (416, 416)):
         self.class_list = class_list
         self.class_list = class_list if class_list is not None else []
