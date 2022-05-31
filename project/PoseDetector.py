@@ -45,10 +45,11 @@ class PoseDetector:
             return False
 
         position = self.__get_position(landmarks)
-        shoulder_distance = abs(position["right_shoulder"]["x"] - position["left_shoulder"]["x"])
-        max_thumb_to_nose = round(shoulder_distance / 2)
-        max_offset = round(shoulder_distance / 5)
         height, width, _ = frame.shape
+        error_margin = round(width / 100)
+        shoulder_distance = abs(position["right_shoulder"]["x"] - position["left_shoulder"]["x"])
+        max_thumb_to_nose = round(shoulder_distance / 2) + error_margin
+        max_offset = round(shoulder_distance / 3) + error_margin
 
         checks = [
             position["right_elbow"]["y"] < height,
