@@ -1,4 +1,3 @@
-import numpy as np
 import cv2
 from cvzone.PoseModule import PoseDetector as Detector
 
@@ -23,9 +22,21 @@ class PoseDetector:
                             cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
         return frame
 
+    def draw_labeled_landmarks(self, frame):
+        landmarks, bounding_box = self.find_position(frame)
+
+        if len(landmarks) == 0:
+            return frame
+
+        positions = self.__get_position(landmarks)
+        for position in positions:
+            cv2.putText(frame, position, (positions[position]["x"], positions[position]["y"]), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
+
+        return frame
+
     def find_position(self, frame):
         # See https://google.github.io/mediapipe/images/mobile/pose_tracking_full_body_landmarks.png
-        return self.detector.findPosition(self.__find_pose(frame, False), bboxWithHands=False)
+        return self.detector.findPosition(self.__find_pose(frame, False), bboxWithHands=False, draw=False)
 
     def is_valid_position(self, frame):
         landmarks, bounding_box = self.find_position(frame)
@@ -37,16 +48,20 @@ class PoseDetector:
         shoulder_distance = abs(position["right_shoulder"]["x"] - position["left_shoulder"]["x"])
         max_thumb_to_nose = round(shoulder_distance / 2)
         max_offset = round(shoulder_distance / 5)
+        height, width, _ = frame.shape
 
         checks = [
+            position["right_elbow"]["y"] < height,
+            position["left_elbow"]["y"] < height,
             position["right_elbow"]["y"] - max_offset < position["right_shoulder"]["y"],
             position["left_elbow"]["y"] - max_offset < position["left_shoulder"]["y"],
             position["right_wrist"]["y"] - max_offset < position["right_elbow"]["y"],
             position["left_wrist"]["y"] - max_offset < position["left_elbow"]["y"],
             abs(position["left_thumb"]["x"] - position["nose"]["x"]) < max_thumb_to_nose,
-            abs(position["left_thumb"]["x"] - position["nose"]["x"]) < max_thumb_to_nose,
+            abs(position["left_thumb"]["y"] - position["nose"]["y"]) < max_thumb_to_nose,
+            abs(position["right_thumb"]["x"] - position["nose"]["x"]) < max_thumb_to_nose,
+            abs(position["right_thumb"]["y"] - position["nose"]["y"]) < max_thumb_to_nose,
         ]
-
 
         return all(checks)
 
@@ -66,6 +81,6 @@ class PoseDetector:
             "left_wrist": self.__get_x_y_z(landmarks[15]),
             "right_wrist": self.__get_x_y_z(landmarks[16]),
             "left_thumb": self.__get_x_y_z(landmarks[21]),
-            "right_thumb": self.__get_x_y_z(landmarks[12]),
+            "right_thumb": self.__get_x_y_z(landmarks[22]),
             "nose": self.__get_x_y_z(landmarks[0]),
         }

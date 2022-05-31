@@ -6,15 +6,33 @@ def main():
     # nn = YoloV5("../models/24052022.onnx", ["startingpos", "light"])
     pose_detect = PoseDetector()
     # capture = cv2.VideoCapture("../experiments/example_data/lampjetest.mp4")
-    capture = cv2.VideoCapture(2)
+    capture = cv2.VideoCapture(0)
+
+    user_started = False
+    counter = 0
 
     while True:
         _, frame = capture.read()
 
-        frame = pose_detect.draw_pose(frame)
-        # frame = pose_detect.draw_landmarks(frame)
+        # frame = pose_detect.draw_pose(frame)
+        # frame = pose_detect.draw_labeled_landmarks(frame)
         valid = pose_detect.is_valid_position(frame)
-        cv2.putText(frame, "Correct", (0,30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2) if valid else cv2.putText(frame, "Incorrect", (0,30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
+        if valid:
+            color = (0, 255, 0)
+            text = "In starting position"
+            user_started = True
+            counter = 0
+        else:
+            color = (0, 0, 255)
+            if user_started:
+                counter += 1
+                text = "Started with hit!"
+                if counter > 50:
+                    user_started = False
+            else:
+                text = "Go to starting position"
+        cv2.putText(frame, text, (20,60), cv2.FONT_HERSHEY_SIMPLEX, 2, color, 4)
+
 
         cv2.imshow("output", frame)
 
