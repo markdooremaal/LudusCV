@@ -5,8 +5,8 @@ import cv2
 def main():
     # nn = YoloV5("../models/24052022.onnx", ["startingpos", "light"])
     pose_detect = PoseDetector()
-    capture = cv2.VideoCapture("../experiments/example_data/Camera 1.mov")
-    # capture = cv2.VideoCapture(0)
+    # capture = cv2.VideoCapture("../experiments/example_data/Camera 1.mov")
+    capture = cv2.VideoCapture(0)
 
     user_started = False
     counter = 50
