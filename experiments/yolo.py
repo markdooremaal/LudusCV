@@ -1,5 +1,6 @@
 import cv2
 import numpy as np
+from robbert_test import drawGUI
 
 INPUT_WIDTH = 416
 INPUT_HEIGHT = 416
@@ -7,9 +8,8 @@ class_list = ['Paddle', 'Lights']
 
 # Will load the model into OpenCV DNN
 
-
 def build_model():
-    net = cv2.dnn.readNet("../models/24052022.onnx")
+    net = cv2.dnn.readNet("/Users/robbertruiter/Documents/Study/Minor Big Data/LudusCV/models/24052022.onnx")
     net.setPreferableBackend(cv2.dnn.DNN_BACKEND_OPENCV)
     net.setPreferableTarget(cv2.dnn.DNN_TARGET_CPU)
     return net
@@ -96,10 +96,17 @@ while True:
 
     inputImage = format_yolov5(frame)
     outs = detect(inputImage, net)
+    paddleDetected = False
+    lightsDetected = False
+    inStartingPosition = False
 
     class_ids, confidences, boxes = wrap_detection(inputImage, outs[0])
 
     for (classid, confidence, box) in zip(class_ids, confidences, boxes):
+        if (not paddleDetected):
+            paddleDetected = classid == 0
+        if (not lightsDetected):
+            lightsDetected = classid == 1
         color = colors[int(classid) % len(colors)]
         cv2.rectangle(frame, box, color, 2)
         cv2.rectangle(frame, (box[0], box[1] - 20),
@@ -130,13 +137,14 @@ while True:
             x2, y2, w2, h2 = cv2.boundingRect(c)
 
             # Plaats dit rechthoek op de video
-            cv2.rectangle(extract, (x2, y2), (x2 + w2, y2 + h2), (255, 0, 0), 10)
+            cv2.rectangle(extract, (x2, y2), (x2 + w2, y2 + h2), (255, 0, 0), -1)
 
             # print("JAA het lampje is gezien!")
 
             # frame[y:y + h, x:x + w] = extract
 
             cv2.imshow("extract", extract)
+    drawGUI(cv2, frame, paddleDetected, lightsDetected, inStartingPosition)
 
     cv2.imshow("output", frame)
 
