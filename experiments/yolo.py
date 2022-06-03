@@ -9,7 +9,7 @@ class_list = ['Paddle', 'Lights']
 # Will load the model into OpenCV DNN
 
 def build_model():
-    net = cv2.dnn.readNet("/Users/robbertruiter/Documents/Study/Minor Big Data/LudusCV/models/24052022.onnx")
+    net = cv2.dnn.readNet("../models/24052022.onnx")
     net.setPreferableBackend(cv2.dnn.DNN_BACKEND_OPENCV)
     net.setPreferableTarget(cv2.dnn.DNN_TARGET_CPU)
     return net
