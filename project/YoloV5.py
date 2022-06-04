@@ -86,9 +86,20 @@ class YoloV5:
 
     # Use this function to detect on an image:
     def detect_on_frame(self, frame, low_confidence = False):
-        input_image = self.format_yolov5(frame)
-        outs = self.detect(input_image, self.network)
+
+        if self.__prev_frame is not None and np.array_equal(self.__prev_frame, frame) and self.__prev_detect is not None:
+            input_image, outs = self.__prev_detect
+        else:
+            input_image = self.format_yolov5(frame)
+            outs = self.detect(input_image, self.network)
+            self.__prev_detect = (input_image, outs)
+            self.__prev_frame = frame
+
         return self.wrap_detection(input_image, outs[0], low_confidence)
+
+    __prev_frame = None
+    __prev_detect = None
+
 
     def draw_on_frame(self, frame, low_confidence = False):
         class_ids, confidences, boxes = self.detect_on_frame(frame, low_confidence)
@@ -102,3 +113,10 @@ class YoloV5:
             cv2.putText(frame, "{0} - {1:.2f}".format(self.class_list[classid], confidences[int(confidence)]), (box[0], box[1] - 10), cv2.FONT_HERSHEY_SIMPLEX, .5, (0, 0, 0))
 
         return frame
+
+    def is_in_frame(self, frame, class_to_detect, min_confidence = .7):
+        class_ids, confidences, boxes = self.detect_on_frame(frame, True)
+        for (classid, confidence, box) in zip(class_ids, confidences, boxes):
+            if class_to_detect == self.class_list[classid] and confidences[int(confidence)] > min_confidence:
+                return True
+        return False
