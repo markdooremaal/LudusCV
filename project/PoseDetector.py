@@ -32,6 +32,8 @@ class PoseDetector:
         for position in positions:
             cv2.putText(frame, position, (positions[position]["x"], positions[position]["y"]), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
 
+        cv2.putText(frame, "center", bounding_box['center'], cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 255), 2)
+
         return frame
 
     def find_position(self, frame):
@@ -73,6 +75,9 @@ class PoseDetector:
             "z": landmark[3],
         }
 
+    def get_position(self, landmarks):
+        return self.__get_position(landmarks)
+
     def __get_position(self, landmarks):
         return {
             "left_shoulder": self.__get_x_y_z(landmarks[11]),
@@ -84,4 +89,8 @@ class PoseDetector:
             "left_thumb": self.__get_x_y_z(landmarks[21]),
             "right_thumb": self.__get_x_y_z(landmarks[22]),
             "nose": self.__get_x_y_z(landmarks[0]),
+            "left_hip": self.__get_x_y_z(landmarks[23]),
+            "right_hip": self.__get_x_y_z(landmarks[24]),
+            "left_heel": self.__get_x_y_z(landmarks[29]),
+            "right_heel": self.__get_x_y_z(landmarks[30]),
         }
