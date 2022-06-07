@@ -120,3 +120,10 @@ class YoloV5:
             if class_to_detect == self.class_list[classid] and confidences[int(confidence)] > min_confidence:
                 return True
         return False
+
+    def get_coords(self, frame, class_to_detect, min_confidence = .7):
+        class_ids, confidences, boxes = self.detect_on_frame(frame, True)
+        for (classid, confidence, box) in zip(class_ids, confidences, boxes):
+            if class_to_detect == self.class_list[classid] and confidences[int(confidence)] > min_confidence:
+                return box
+        return False
