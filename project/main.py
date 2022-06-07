@@ -51,7 +51,37 @@ class Application:
         Will return the input stream
         :return:
         """
-        return cv2.VideoCapture(0)
+        _, working_ports, _ = self.list_cameras()
+        if len(working_ports) > 1:
+            camera_id = input("Pick an camera (available: "+str(working_ports)+"): [default="+str(working_ports[0])+"]")
+            if not camera_id == "" and working_ports.index(int(camera_id)):
+                return cv2.VideoCapture(int(camera_id))
+        if len(working_ports) >= 1:
+            return cv2.VideoCapture(working_ports[0])
+        else:
+            print("No camera's available")
+            exit()
+
+    def list_cameras(self):
+        """
+        Test the ports and returns a tuple with the available ports and the ones that are working.
+        """
+        non_working_ports = []
+        dev_port = 0
+        working_ports = []
+        available_ports = []
+        while len(non_working_ports) < 6:  # if there are more than 5 non working ports stop the testing.
+            camera = cv2.VideoCapture(dev_port)
+            if not camera.isOpened():
+                non_working_ports.append(dev_port)
+            else:
+                is_reading, img = camera.read()
+                if is_reading:
+                    working_ports.append(dev_port)
+                else:
+                    available_ports.append(dev_port)
+            dev_port += 1
+        return available_ports, working_ports, non_working_ports
 
 
 
