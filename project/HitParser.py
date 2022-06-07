@@ -1,4 +1,6 @@
 from BaseParser import BaseParser
+import time
+import cv2
 
 
 class HitParser(BaseParser):
@@ -6,6 +8,9 @@ class HitParser(BaseParser):
     __user_has_hit = -100
     __last_starting_pos = -100
     __first_light_detected = -100
+
+    __hit_time_start = -1
+    hit_time = -1
 
     can_hit = False
     user_has_hit = False
@@ -26,8 +31,10 @@ class HitParser(BaseParser):
         if self.application.parsers["yolo"].lights_detected:
             self.__can_hit = self.application.frame_index
         self.can_hit = self.__can_hit > self.application.frame_index - 5
-        if self.can_hit and self.__first_light_detected > self.application.frame_index - 20:
+        if self.can_hit and self.__first_light_detected < self.application.frame_index - 20:
             self.__first_light_detected = self.application.frame_index
+            self.__hit_time_start = round(time.time() * 1000)
+            self.hit_time = -1
 
         # Check if the hit has been started
         if not self.user_in_starting_pos:
@@ -37,17 +44,20 @@ class HitParser(BaseParser):
         # Check if the paddle has been hit
         self.paddle_hit = self.is_paddle_hit()
         if self.paddle_hit:
-            print('hit')
+            if self.hit_time == -1 and self.__hit_time_start > 0:
+                self.hit_time = round(time.time() * 1000) - self.__hit_time_start
+            box = self.application.parsers["yolo"].paddle_box
+            cv2.rectangle(output, box, (0, 255, 255), 5)
 
-        # Check if the hit was to early
+        # Check if the hit was too early
         self.to_early = self.hit_is_to_early()
 
     def is_paddle_hit(self):
         if self.application.parsers["yolo"].paddle_box is not None and self.application.parsers["starting_pose"].detector.last_position:
             (x, y, w, h) = self.application.parsers["yolo"].paddle_box
             pos = self.application.parsers["starting_pose"].detector.last_position
-            lpos = pos['left_wrist']
-            rpos = pos['right_wrist']
+            lpos = pos['left_thumb']
+            rpos = pos['right_thumb']
             return x < lpos['x'] < x + w and y < lpos['y'] < y + y or x < rpos['x'] < x + w and y < rpos['y'] < y + y
         return False
 

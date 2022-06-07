@@ -12,6 +12,7 @@ class GuiOverlay(BaseParser):
         in_starting_position = self.application.parsers["hit_parser"].user_in_starting_pos
         hit_started = self.application.parsers["hit_parser"].user_has_hit
         to_early = self.application.parsers["hit_parser"].to_early
+        last_hit_time = self.application.parsers["hit_parser"].hit_time
 
         frame_height = output.shape[0]
         frame_width = output.shape[1]
@@ -53,4 +54,6 @@ class GuiOverlay(BaseParser):
             else:
                 cv2.rectangle(output, (740, frame_height), (780, frame_height - self.__gui_height), (0, 255, 0), -1)
                 cv2.putText(output, "No", (745, frame_height - 15), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 1)
-        
+
+        if last_hit_time > 0:
+            cv2.putText(output, "Last hit: " + str(last_hit_time) + "ms", (frame_width-200, frame_height - 15), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 1)

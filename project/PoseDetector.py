@@ -51,7 +51,7 @@ class PoseDetector:
         self.last_position = position
         height, width, _ = frame.shape
         shoulder_distance = abs(position["right_shoulder"]["x"] - position["left_shoulder"]["x"])
-        max_thumb_to_nose = round(shoulder_distance / 2)
+        max_thumb_to_nose = round(shoulder_distance / 1.5)
         max_offset = round(shoulder_distance / 3)
 
         checks = [
