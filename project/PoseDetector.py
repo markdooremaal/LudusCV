@@ -4,6 +4,7 @@ from cvzone.PoseModule import PoseDetector as Detector
 
 class PoseDetector:
     detector = None
+    last_position = None
 
     def __init__(self):
         self.detector = Detector()
@@ -47,11 +48,11 @@ class PoseDetector:
             return False
 
         position = self.__get_position(landmarks)
+        self.last_position = position
         height, width, _ = frame.shape
-        error_margin = round(width / 100)
         shoulder_distance = abs(position["right_shoulder"]["x"] - position["left_shoulder"]["x"])
-        max_thumb_to_nose = round(shoulder_distance / 2) + error_margin
-        max_offset = round(shoulder_distance / 3) + error_margin
+        max_thumb_to_nose = round(shoulder_distance / 2)
+        max_offset = round(shoulder_distance / 3)
 
         checks = [
             position["right_elbow"]["y"] < height,
