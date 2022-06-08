@@ -33,7 +33,7 @@ class DetectPaddle(BaseParser):
                 x - error_x,
                 y - error_y,
                 w + error_x * 2,
-                y + error_y * 2]
+                h + error_y * 2]
 
         if self.paddle_box is not None:
             (x, y, w, h) = self.paddle_box
@@ -68,8 +68,8 @@ class DetectPaddle(BaseParser):
             self.__counter = 3
             self.lights_detected = True
 
-        result_masked = cv2.bitwise_and(segment, segment, mask=mask)
-        result_masked[mask == 0] = (255, 255, 255)
+        # result_masked = cv2.bitwise_and(segment, segment, mask=mask)
+        # result_masked[mask == 0] = (255, 255, 255)
 
         # Toont de mask
         # cv2.imshow('Mask', result_masked)
