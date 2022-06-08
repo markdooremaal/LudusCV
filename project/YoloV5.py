@@ -114,10 +114,10 @@ class YoloV5:
 
         return frame
 
-    def is_in_frame(self, frame, class_to_detect, min_confidence = .7):
+    def is_in_frame(self, frame, class_to_detect):
         class_ids, confidences, boxes = self.detect_on_frame(frame, True)
         for (classid, confidence, box) in zip(class_ids, confidences, boxes):
-            if class_to_detect == self.class_list[classid] and confidences[int(confidence)] > min_confidence:
+            if class_to_detect == self.class_list[classid]:
                 return True
         return False
 
