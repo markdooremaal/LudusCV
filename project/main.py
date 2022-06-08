@@ -4,6 +4,7 @@ from DetectPaddle import DetectPaddle
 from StartingPose import StartingPose
 from HitParser import HitParser
 from GuiOverlay import GuiOverlay
+import sys
 
 
 class Application:
@@ -51,6 +52,20 @@ class Application:
         Will return the input stream
         :return:
         """
+
+        # If the input is specified in the arguments, use that:
+        if len(sys.argv) >= 1:
+            try:
+                arg = int(sys.argv[1])
+            except ValueError:
+                arg = sys.argv[1]
+            try:
+                cap = cv2.VideoCapture(arg)
+                return cap
+            except:
+                print("Cannot parse", arg)
+
+        # Else manually select a webcam
         _, working_ports, _ = self.list_cameras()
         if len(working_ports) > 1:
             camera_id = input("Pick an camera (available: "+str(working_ports)+"): [default="+str(working_ports[0])+"]")
