@@ -29,7 +29,11 @@ class DetectPaddle(BaseParser):
             (x, y, w, h) = coords
             error_x = round(w / 10)
             error_y = round(h / 10)
-            self.paddle_box = [x - error_x, y - error_y, w + error_x * 2, y + error_y]
+            self.paddle_box = [
+                x - error_x,
+                y - error_y,
+                w + error_x * 2,
+                y + error_y * 2]
 
         if self.paddle_box is not None:
             (x, y, w, h) = self.paddle_box
@@ -51,12 +55,21 @@ class DetectPaddle(BaseParser):
             return
 
         # Minimale en maximale *HSV* waardes
-        min_hsv = np.array([65, 50, 50])
-        max_hsv = np.array([85, 255, 255])
+        min_hsv = np.array([35, 80, 60])
+        max_hsv = np.array([90, 255, 255])
 
         mask = cv2.inRange(hsv_frame, min_hsv, max_hsv)
+        kernel = np.ones((5,5),np.uint8)
+        mask = cv2.erode(mask, kernel, iterations=1)
+        mask = cv2.dilate(mask, kernel, iterations=5)
 
         green_filled = cv2.countNonZero(mask) / (segment.shape[0] * segment.shape[1]) * 100  # Calculate the % of green
-        if green_filled > 0.03:
+        if green_filled > 0.4:
             self.__counter = 3
             self.lights_detected = True
+
+        result_masked = cv2.bitwise_and(segment, segment, mask=mask)
+        result_masked[mask == 0] = (255, 255, 255)
+
+        # Toont de mask
+        # cv2.imshow('Mask', result_masked)
